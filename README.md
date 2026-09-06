@@ -1,5 +1,7 @@
 # TRIFACT
 
+[English](README.md) | [한국어](README_KR.md)
+
 > **Experimental and unproven research project. Not for production use.**
 
 TRIFACT explores a proposed post-quantum digital signature design based on the Random 3-Uniform Hypergraph Factorization Recovery problem (R3HFR).
@@ -19,6 +21,10 @@ The project is currently in the design and feasibility-validation stage. It does
 - `analysis/` — R3HFR solvers, experiments, and benchmarks
 - `src/` — future reference implementation
 - `tests/` — correctness, negative, and regression tests
+
+## Documentation
+
+English documents are canonical. Korean translations are provided in matching files with the `_KR` suffix.
 
 ## Security
 
