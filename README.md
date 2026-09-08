@@ -19,8 +19,13 @@ The project is currently in the design and feasibility-validation stage. It does
 
 - `docs/` — design specifications, decisions, and evaluation reports
 - `analysis/` — R3HFR solvers, experiments, and benchmarks
-- `src/` — future reference implementation
+- `include/` — public C headers
+- `src/` — C17 reference implementation
 - `tests/` — correctness, negative, and regression tests
+
+## Development
+
+The prototype uses C17 and CMake with automated GCC, Clang, and MSVC builds. See [Development Environment](docs/DEVELOPMENT.md).
 
 ## Documentation
 

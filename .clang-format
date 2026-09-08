@@ -1,0 +1,8 @@
+BasedOnStyle: LLVM
+BreakBeforeBraces: Attach
+ColumnLimit: 100
+IndentWidth: 4
+InsertNewlineAtEOF: true
+Language: C
+SortIncludes: CaseSensitive
+UseTab: Never

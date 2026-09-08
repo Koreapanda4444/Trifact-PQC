@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trifact-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check C formatting
+        run: >-
+          clang-format --dry-run --Werror
+          include/trifact/trifact.h
+          src/trifact.c
+          tests/test_toolchain.c
+
+  build-and-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux GCC
+            os: ubuntu-latest
+            compiler: gcc
+          - name: Linux Clang
+            os: ubuntu-latest
+            compiler: clang
+          - name: Windows MSVC
+            os: windows-latest
+            compiler: cl
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+          -DCMAKE_BUILD_TYPE=Debug
+          -DBUILD_TESTING=ON
+
+      - name: Build
+        run: cmake --build build --config Debug --parallel
+
+      - name: Test
+        run: ctest --test-dir build -C Debug --output-on-failure

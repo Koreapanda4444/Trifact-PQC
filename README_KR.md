@@ -19,8 +19,13 @@ TRIFACT는 R3HFR(Random 3-Uniform Hypergraph Factorization Recovery) 문제를 �
 
 - `docs/` — 설계 명세, 결정 사항 및 평가 보고서
 - `analysis/` — R3HFR solver, 실험 및 benchmark
-- `src/` — 향후 참조 구현
+- `include/` — public C header
+- `src/` — C17 reference implementation
 - `tests/` — 정확성, 실패 사례 및 회귀 테스트
+
+## 개발
+
+prototype은 C17과 CMake를 사용하며 GCC, Clang, MSVC build를 자동 검사합니다. [개발 환경](docs/DEVELOPMENT_KR.md)을 참고하십시오.
 
 ## 문서 언어
 
