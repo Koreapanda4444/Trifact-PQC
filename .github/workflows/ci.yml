@@ -23,8 +23,11 @@ jobs:
       - name: Check C formatting
         run: >-
           clang-format --dry-run --Werror
+          include/trifact/core.h
           include/trifact/trifact.h
+          src/core.c
           src/trifact.c
+          tests/test_core_types.c
           tests/test_toolchain.c
 
   build-and-test:

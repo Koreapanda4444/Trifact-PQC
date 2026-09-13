@@ -27,16 +27,18 @@ C was selected for the reference implementation to keep data representation, all
 
 ```text
 .github/workflows/ci.yml  formatting, build, and test jobs
-include/trifact/          public C headers
-src/                      reference implementation
-tests/                    CTest executables
+include/trifact/core.h     canonical core data types and constructors
+include/trifact/trifact.h  public umbrella header
+src/core.c                 canonical core data model implementation
+src/trifact.c              project-level compile-time checks
+tests/                     toolchain and core-type CTest executables
 docs/                     English specifications and Korean counterparts
 analysis/                 later solvers, experiments, and benchmark outputs
 CMakeLists.txt            build definition
 .clang-format             source formatting rules
 ```
 
-This commit contains only a buildable library skeleton and a toolchain smoke test. Hypergraph types and algorithm behavior begin in the following commits.
+The codebase contains an owning canonical hypergraph representation and an owning factor-label vector. Relation validation, KeyGen, codecs, recovery solvers, proofs, and signatures remain separate later commits.
 
 ## Windows Setup
 
@@ -80,13 +82,19 @@ ctest --test-dir build-clang --output-on-failure
 Check the current C files with:
 
 ```bash
-clang-format --dry-run --Werror include/trifact/trifact.h src/trifact.c tests/test_toolchain.c
+clang-format --dry-run --Werror \
+  include/trifact/core.h include/trifact/trifact.h \
+  src/core.c src/trifact.c \
+  tests/test_core_types.c tests/test_toolchain.c
 ```
 
 Apply formatting with:
 
 ```bash
-clang-format -i include/trifact/trifact.h src/trifact.c tests/test_toolchain.c
+clang-format -i \
+  include/trifact/core.h include/trifact/trifact.h \
+  src/core.c src/trifact.c \
+  tests/test_core_types.c tests/test_toolchain.c
 ```
 
 New C headers and source files must be added to the CI formatting command in the same commit that creates them. A later tooling commit may replace the explicit list with a checked manifest.

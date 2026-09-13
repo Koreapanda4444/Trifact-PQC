@@ -23,7 +23,7 @@ function(trifact_enable_warnings target_name)
     endif()
 endfunction()
 
-add_library(trifact STATIC src/trifact.c)
+add_library(trifact STATIC src/core.c src/trifact.c)
 
 target_compile_features(trifact PUBLIC c_std_17)
 target_include_directories(
@@ -42,4 +42,12 @@ if(BUILD_TESTING)
     trifact_enable_warnings(trifact_tests)
 
     add_test(NAME trifact.toolchain COMMAND trifact_tests)
+
+    add_executable(trifact_core_types_tests tests/test_core_types.c)
+    target_compile_features(trifact_core_types_tests PRIVATE c_std_17)
+    target_link_libraries(trifact_core_types_tests PRIVATE trifact)
+    set_target_properties(trifact_core_types_tests PROPERTIES C_EXTENSIONS OFF)
+    trifact_enable_warnings(trifact_core_types_tests)
+
+    add_test(NAME trifact.core-types COMMAND trifact_core_types_tests)
 endif()

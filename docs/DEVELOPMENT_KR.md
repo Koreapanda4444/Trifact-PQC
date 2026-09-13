@@ -27,16 +27,18 @@ data representation, allocation, integer bound, canonical byte processing을 명
 
 ```text
 .github/workflows/ci.yml  formatting, build, test job
-include/trifact/          public C header
-src/                      reference implementation
-tests/                    CTest executable
+include/trifact/core.h     canonical core data type과 constructor
+include/trifact/trifact.h  public umbrella header
+src/core.c                 canonical core data model 구현
+src/trifact.c              project-level compile-time check
+tests/                     toolchain 및 core-type CTest executable
 docs/                     영문 명세와 한국어 counterpart
 analysis/                 이후 solver, experiment, benchmark output
 CMakeLists.txt            build definition
 .clang-format             source formatting rule
 ```
 
-이 commit에는 build 가능한 library skeleton과 toolchain smoke test만 포함한다. Hypergraph type과 algorithm behavior는 다음 commit부터 추가한다.
+현재 codebase에는 storage를 소유하는 canonical hypergraph representation과 factor-label vector가 포함되어 있다. Relation validation, KeyGen, codec, recovery solver, proof 및 signature는 이후의 별도 commit에서 추가한다.
 
 ## Windows 설정
 
@@ -80,13 +82,19 @@ ctest --test-dir build-clang --output-on-failure
 현재 C file을 다음 명령으로 검사한다.
 
 ```bash
-clang-format --dry-run --Werror include/trifact/trifact.h src/trifact.c tests/test_toolchain.c
+clang-format --dry-run --Werror \
+  include/trifact/core.h include/trifact/trifact.h \
+  src/core.c src/trifact.c \
+  tests/test_core_types.c tests/test_toolchain.c
 ```
 
 formatting 적용:
 
 ```bash
-clang-format -i include/trifact/trifact.h src/trifact.c tests/test_toolchain.c
+clang-format -i \
+  include/trifact/core.h include/trifact/trifact.h \
+  src/core.c src/trifact.c \
+  tests/test_core_types.c tests/test_toolchain.c
 ```
 
 새 C header와 source file을 만드는 commit은 같은 commit에서 CI formatting 명령에도 해당 파일을 추가해야 한다. 이후 tooling commit에서 explicit list를 checked manifest로 대체할 수 있다.
