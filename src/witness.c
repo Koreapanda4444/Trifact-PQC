@@ -1,6 +1,5 @@
 #include "trifact/witness.h"
-
-#include <stdlib.h>
+#include "memory.h"
 
 trifact_status_t trifact_label_vector_normalize(trifact_label_vector_t **out_labels,
                                                 const trifact_label_vector_t *labels) {
@@ -26,7 +25,7 @@ trifact_status_t trifact_label_vector_normalize(trifact_label_vector_t **out_lab
     if (count == 0U) {
         return trifact_label_vector_create(out_labels, NULL, 0U);
     }
-    normalized = malloc(count * sizeof(*normalized));
+    normalized = trifact_memory_allocate(count * sizeof(*normalized));
     if (normalized == NULL) {
         return TRIFACT_STATUS_ALLOCATION_FAILURE;
     }
@@ -46,7 +45,7 @@ trifact_status_t trifact_label_vector_normalize(trifact_label_vector_t **out_lab
         }
     }
     status = trifact_label_vector_create(out_labels, normalized, count);
-    free(normalized);
+    trifact_memory_free(normalized);
     return status;
 }
 

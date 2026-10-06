@@ -1,6 +1,5 @@
 #include "trifact/incidence.h"
-
-#include <stdlib.h>
+#include "memory.h"
 
 struct trifact_incidence_index {
     trifact_vertex_t vertex_count;
@@ -54,7 +53,7 @@ trifact_status_t trifact_incidence_index_create(trifact_incidence_index_t **out_
     if (entry_count > SIZE_MAX / sizeof(*index->entries)) {
         return TRIFACT_STATUS_SIZE_OVERFLOW;
     }
-    degrees = calloc(vertex_count, sizeof(*degrees));
+    degrees = trifact_memory_allocate_zero(vertex_count, sizeof(*degrees));
     if (degrees == NULL) {
         return TRIFACT_STATUS_ALLOCATION_FAILURE;
     }
@@ -65,20 +64,20 @@ trifact_status_t trifact_incidence_index_create(trifact_incidence_index_t **out_
     }
     for (vertex = 0U; vertex < vertex_count; ++vertex) {
         if (degrees[vertex] != (size_t)factor_count) {
-            free(degrees);
+            trifact_memory_free(degrees);
             return TRIFACT_STATUS_VERTEX_DEGREE_MISMATCH;
         }
         degrees[vertex] = 0U;
     }
-    index = malloc(sizeof(*index));
+    index = trifact_memory_allocate(sizeof(*index));
     if (index == NULL) {
-        free(degrees);
+        trifact_memory_free(degrees);
         return TRIFACT_STATUS_ALLOCATION_FAILURE;
     }
-    index->entries = malloc(entry_count * sizeof(*index->entries));
+    index->entries = trifact_memory_allocate(entry_count * sizeof(*index->entries));
     if (index->entries == NULL) {
-        free(index);
-        free(degrees);
+        trifact_memory_free(index);
+        trifact_memory_free(degrees);
         return TRIFACT_STATUS_ALLOCATION_FAILURE;
     }
     for (edge = 0U; edge < edge_count; ++edge) {
@@ -88,7 +87,7 @@ trifact_status_t trifact_incidence_index_create(trifact_incidence_index_t **out_
             ++degrees[vertex];
         }
     }
-    free(degrees);
+    trifact_memory_free(degrees);
     index->vertex_count = (trifact_vertex_t)vertex_count;
     index->factor_count = factor_count;
     index->edge_count = edge_count;
@@ -98,8 +97,8 @@ trifact_status_t trifact_incidence_index_create(trifact_incidence_index_t **out_
 
 void trifact_incidence_index_destroy(trifact_incidence_index_t *index) {
     if (index != NULL) {
-        free(index->entries);
-        free(index);
+        trifact_memory_free(index->entries);
+        trifact_memory_free(index);
     }
 }
 

@@ -1,6 +1,5 @@
 #include "trifact/relation.h"
-
-#include <stdlib.h>
+#include "memory.h"
 
 static trifact_status_t relation_result(trifact_relation_error_t *error, trifact_status_t status,
                                         size_t vertex_index, size_t edge_index) {
@@ -61,7 +60,7 @@ trifact_status_t trifact_relation_validate(const trifact_hypergraph_t *hypergrap
         return relation_result(error, TRIFACT_STATUS_SIZE_OVERFLOW, SIZE_MAX, SIZE_MAX);
     }
     seen_count = vertex_count * (size_t)factor_count;
-    degrees = calloc(vertex_count, sizeof(*degrees));
+    degrees = trifact_memory_allocate_zero(vertex_count, sizeof(*degrees));
     if (degrees == NULL) {
         return relation_result(error, TRIFACT_STATUS_ALLOCATION_FAILURE, SIZE_MAX, SIZE_MAX);
     }
@@ -72,12 +71,12 @@ trifact_status_t trifact_relation_validate(const trifact_hypergraph_t *hypergrap
     }
     for (index = 0U; index < vertex_count; ++index) {
         if (degrees[index] != (size_t)factor_count) {
-            free(degrees);
+            trifact_memory_free(degrees);
             return relation_result(error, TRIFACT_STATUS_VERTEX_DEGREE_MISMATCH, index, SIZE_MAX);
         }
     }
-    free(degrees);
-    seen = calloc(seen_count, sizeof(*seen));
+    trifact_memory_free(degrees);
+    seen = trifact_memory_allocate_zero(seen_count, sizeof(*seen));
     if (seen == NULL) {
         return relation_result(error, TRIFACT_STATUS_ALLOCATION_FAILURE, SIZE_MAX, SIZE_MAX);
     }
@@ -87,13 +86,13 @@ trifact_status_t trifact_relation_validate(const trifact_hypergraph_t *hypergrap
             const size_t offset = vertex * (size_t)factor_count + (size_t)data[index];
 
             if (seen[offset] != 0U) {
-                free(seen);
+                trifact_memory_free(seen);
                 return relation_result(error, TRIFACT_STATUS_INCIDENT_LABEL_COLLISION, vertex,
                                        index);
             }
             seen[offset] = 1U;
         }
     }
-    free(seen);
+    trifact_memory_free(seen);
     return relation_result(error, TRIFACT_STATUS_OK, SIZE_MAX, SIZE_MAX);
 }

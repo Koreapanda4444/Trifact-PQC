@@ -30,9 +30,14 @@ jobs:
           include/trifact/witness.h
           src/core.c
           src/incidence.c
+          src/memory.c
+          src/memory.h
           src/relation.c
           src/trifact.c
           src/witness.c
+          tests/failing_allocator.c
+          tests/failing_allocator.h
+          tests/test_allocation.c
           tests/test_core_types.c
           tests/test_incidence.c
           tests/test_invariants.c

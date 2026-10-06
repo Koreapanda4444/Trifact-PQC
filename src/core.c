@@ -1,7 +1,7 @@
 #include "trifact/core.h"
+#include "memory.h"
 
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
 struct trifact_hypergraph {
@@ -109,7 +109,7 @@ trifact_status_t trifact_hypergraph_create(trifact_hypergraph_t **out_hypergraph
         return TRIFACT_STATUS_SIZE_OVERFLOW;
     }
 
-    hypergraph = malloc(sizeof(*hypergraph));
+    hypergraph = trifact_memory_allocate(sizeof(*hypergraph));
     if (hypergraph == NULL) {
         return TRIFACT_STATUS_ALLOCATION_FAILURE;
     }
@@ -117,9 +117,9 @@ trifact_status_t trifact_hypergraph_create(trifact_hypergraph_t **out_hypergraph
     if (edge_count > 0U) {
         const size_t byte_count = edge_count * sizeof(*edge_copy);
 
-        edge_copy = malloc(byte_count);
+        edge_copy = trifact_memory_allocate(byte_count);
         if (edge_copy == NULL) {
-            free(hypergraph);
+            trifact_memory_free(hypergraph);
             return TRIFACT_STATUS_ALLOCATION_FAILURE;
         }
         (void)memcpy(edge_copy, edges, byte_count);
@@ -134,8 +134,8 @@ trifact_status_t trifact_hypergraph_create(trifact_hypergraph_t **out_hypergraph
 
 void trifact_hypergraph_destroy(trifact_hypergraph_t *hypergraph) {
     if (hypergraph != NULL) {
-        free(hypergraph->edges);
-        free(hypergraph);
+        trifact_memory_free(hypergraph->edges);
+        trifact_memory_free(hypergraph);
     }
 }
 
@@ -172,7 +172,7 @@ trifact_status_t trifact_label_vector_create(trifact_label_vector_t **out_labels
         return TRIFACT_STATUS_SIZE_OVERFLOW;
     }
 
-    vector = malloc(sizeof(*vector));
+    vector = trifact_memory_allocate(sizeof(*vector));
     if (vector == NULL) {
         return TRIFACT_STATUS_ALLOCATION_FAILURE;
     }
@@ -180,9 +180,9 @@ trifact_status_t trifact_label_vector_create(trifact_label_vector_t **out_labels
     if (label_count > 0U) {
         const size_t byte_count = label_count * sizeof(*label_copy);
 
-        label_copy = malloc(byte_count);
+        label_copy = trifact_memory_allocate(byte_count);
         if (label_copy == NULL) {
-            free(vector);
+            trifact_memory_free(vector);
             return TRIFACT_STATUS_ALLOCATION_FAILURE;
         }
         (void)memcpy(label_copy, labels, byte_count);
@@ -196,8 +196,8 @@ trifact_status_t trifact_label_vector_create(trifact_label_vector_t **out_labels
 
 void trifact_label_vector_destroy(trifact_label_vector_t *labels) {
     if (labels != NULL) {
-        free(labels->labels);
-        free(labels);
+        trifact_memory_free(labels->labels);
+        trifact_memory_free(labels);
     }
 }
 
