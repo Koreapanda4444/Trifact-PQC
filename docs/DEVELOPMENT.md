@@ -13,7 +13,7 @@ The reference implementation uses:
 - C17 without compiler-specific language extensions;
 - CMake 3.24 or later for configuration and builds;
 - CTest for test execution;
-- `clang-format` for source formatting;
+- `clang-format` 18 for source formatting;
 - compiler warnings treated as errors;
 - GCC and Clang on Linux;
 - MSVC on Windows;
@@ -25,20 +25,18 @@ C was selected for the reference implementation to keep data representation, all
 
 ## Repository Layout
 
-```text
-.github/workflows/ci.yml  formatting, build, and test jobs
-include/trifact/core.h     canonical core data types and constructors
-include/trifact/trifact.h  public umbrella header
-src/core.c                 canonical core data model implementation
-src/trifact.c              project-level compile-time checks
-tests/                     core-type and relation CTest executables
-docs/                     English specifications and Korean counterparts
-analysis/                 later solvers, experiments, and benchmark outputs
-CMakeLists.txt            build definition
-.clang-format             source formatting rules
-```
+| Path | Purpose |
+|---|---|
+| `.github/workflows/ci.yml` | Formatting, strict builds, tests, sanitizers, and static analysis |
+| `include/trifact/` | Public core, relation, incidence, and witness APIs |
+| `src/` | C17 implementation and private production heap wrapper |
+| `tests/` | Deterministic tests, exhaustive oracle, invariants, and test allocator |
+| `docs/` | English specifications and matching Korean documents |
+| `analysis/` | Later solvers, experiments, and benchmark outputs |
+| `CMakeLists.txt` | Build definition and optional diagnostic checks |
+| `.clang-format` | Source formatting rules |
 
-The codebase contains an owning canonical hypergraph representation and an owning factor-label vector. The native R3HFR relation validator is implemented. Its API and ownership rules are documented in [Core API](CORE_API.md). KeyGen, codecs, recovery solvers, proofs, and signatures remain later work.
+The codebase implements owning canonical hypergraphs and label vectors, the native R3HFR relation validator, validated vertex incidence indexes, and witness-label normalization and equivalence. [Core API](CORE_API.md) documents ownership, errors, and the eight CTest targets. KeyGen, codecs, recovery solvers, proofs, and signatures remain later work.
 
 ## Windows Setup
 
@@ -77,27 +75,49 @@ cmake --build build-clang --parallel
 ctest --test-dir build-clang --output-on-failure
 ```
 
+## Sanitizers and Static Analysis
+
+ASan and UBSan are optional and disabled in normal builds. On supported GCC or Clang toolchains, run:
+
+```bash
+cmake -S . -B build-sanitizers -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DTRIFACT_ENABLE_SANITIZERS=ON
+cmake --build build-sanitizers --parallel
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ctest --test-dir build-sanitizers --output-on-failure
+```
+
+The sanitizer configuration checks compiler and linker support. Instrumentation and frame pointers propagate to the production core, test allocator build, and test executables. Unsupported requests fail configuration explicitly. CI uses Linux GCC and Clang with leak detection and stops on the first sanitizer diagnostic. Windows MSVC retains the normal strict build and tests.
+
+GCC analysis requires a compiler supporting `-fanalyzer`; findings remain errors under the existing warning policy:
+
+```bash
+cmake -S . -B build-analysis -DCMAKE_C_COMPILER=gcc -DBUILD_TESTING=OFF -DTRIFACT_ENABLE_GCC_ANALYZER=ON
+cmake --build build-analysis --parallel
+```
+
+Requesting this option with a different compiler or unsupported GCC fails configuration. Clang configurations expose a separate core-analysis target with text diagnostics and analyzer findings treated as errors:
+
+```bash
+cmake -S . -B build-clang-analysis -DCMAKE_C_COMPILER=clang -DBUILD_TESTING=OFF
+cmake --build build-clang-analysis --target trifact-clang-analysis
+```
+
+Compiler analysis and sanitizer coverage are implementation checks, not evidence of cryptographic security. Production-only builds with `BUILD_TESTING=OFF` do not compile or link the fault-injection allocator.
+
 ## Formatting
 
 Check the current C files with:
 
 ```bash
-clang-format --dry-run --Werror \
-  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
-  src/core.c src/relation.c src/trifact.c \
-  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
+git ls-files -z -- '*.c' '*.h' | xargs -0 clang-format-18 --dry-run --Werror
 ```
 
 Apply formatting with:
 
 ```bash
-clang-format -i \
-  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
-  src/core.c src/relation.c src/trifact.c \
-  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
+git ls-files -z -- '*.c' '*.h' | xargs -0 clang-format-18 -i
 ```
 
-New C headers and source files must be added to the CI formatting command in the same commit that creates them. A later tooling commit may replace the explicit list with a checked manifest.
+CI installs the selected formatter on Ubuntu 24.04 and checks every tracked C source and header, including private and test headers. Newly staged or committed C files automatically enter this manifest. Format new untracked files explicitly before staging them.
 
 ## Compiler Checks
 
@@ -125,14 +145,18 @@ Warnings are not suppressed globally. A necessary local suppression must be just
 
 ## CI Contract
 
-CI performs four independent checks:
+CI performs eight independent checks:
 
 1. source formatting on Linux;
 2. build and test with GCC on Linux;
 3. build and test with Clang on Linux;
-4. build and test with MSVC on Windows.
+4. build and test with MSVC on Windows;
+5. ASan, UBSan, and leak checks with GCC on Linux;
+6. ASan, UBSan, and leak checks with Clang on Linux;
+7. GCC core static analysis;
+8. Clang core static analysis.
 
-All jobs must pass before continuing. CI has read-only repository-content permission and does not publish packages, generate keys, create releases, or modify the repository.
+All jobs must pass before an update is considered complete. CI has read-only repository-content permission and does not publish packages, generate keys, create releases, or modify the repository.
 
 ## Test Rules
 
@@ -186,5 +210,7 @@ This setup is complete when:
 - the source satisfies the formatting rule;
 - GCC, Clang, and MSVC builds treat warnings as errors;
 - CI runs on Linux and Windows;
-- the native relation positive and negative cases pass;
+- all eight core CTest targets pass, including the exhaustive oracle and allocation-failure tests;
+- GCC and Clang sanitizer builds pass with leak detection;
+- GCC and Clang core static analysis reports no findings;
 - no KeyGen, proof, or signing implementation is included prematurely.

@@ -14,37 +14,19 @@ concurrency:
 jobs:
   format:
     name: format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Install formatter
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes clang-format-18
+
       - name: Check C formatting
-        run: >-
-          clang-format --dry-run --Werror
-          include/trifact/core.h
-          include/trifact/incidence.h
-          include/trifact/trifact.h
-          include/trifact/relation.h
-          include/trifact/witness.h
-          src/core.c
-          src/incidence.c
-          src/memory.c
-          src/memory.h
-          src/relation.c
-          src/trifact.c
-          src/witness.c
-          tests/failing_allocator.c
-          tests/failing_allocator.h
-          tests/test_allocation.c
-          tests/test_core_types.c
-          tests/test_incidence.c
-          tests/test_invariants.c
-          tests/test_relation.c
-          tests/test_relation_oracle.c
-          tests/test_toolchain.c
-          tests/test_witness.c
+        run: git ls-files -z -- '*.c' '*.h' | xargs -0 clang-format-18 --dry-run --Werror
 
   build-and-test:
     name: ${{ matrix.name }}
@@ -79,3 +61,67 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build -C Debug --output-on-failure
+
+  sanitizers:
+    name: Sanitizers ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            compiler: gcc
+          - name: Clang
+            compiler: clang
+    env:
+      ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+      UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+          -DCMAKE_BUILD_TYPE=Debug
+          -DBUILD_TESTING=ON
+          -DTRIFACT_ENABLE_SANITIZERS=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  static-analysis:
+    name: Analysis ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: GCC
+            compiler: gcc
+            gcc_analyzer: 'ON'
+            target: trifact
+          - name: Clang
+            compiler: clang
+            gcc_analyzer: 'OFF'
+            target: trifact-clang-analysis
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_C_COMPILER=${{ matrix.compiler }}
+          -DCMAKE_BUILD_TYPE=Debug
+          -DBUILD_TESTING=OFF
+          -DTRIFACT_ENABLE_GCC_ANALYZER=${{ matrix.gcc_analyzer }}
+
+      - name: Analyze core
+        run: cmake --build build --target ${{ matrix.target }} --parallel

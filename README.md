@@ -25,7 +25,7 @@ The project is currently in the design and feasibility-validation stage. It does
 
 ## Development
 
-The prototype uses C17 and CMake with automated GCC, Clang, and MSVC builds. See [Development Environment](docs/DEVELOPMENT.md) and [Core API](docs/CORE_API.md).
+The prototype uses C17 and CMake with automated GCC, Clang, and MSVC builds, Linux sanitizers, and compiler static analysis. The current core includes relation validation, incidence indexes, and witness-label normalization. See [Development Environment](docs/DEVELOPMENT.md) and [Core API](docs/CORE_API.md).
 
 ## Documentation
 

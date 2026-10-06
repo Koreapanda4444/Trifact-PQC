@@ -13,7 +13,7 @@ reference implementation은 다음을 사용한다.
 - compiler-specific language extension을 사용하지 않는 C17;
 - configuration 및 build용 CMake 3.24 이상;
 - test 실행용 CTest;
-- source formatting용 `clang-format`;
+- source formatting용 `clang-format` 18;
 - warning을 error로 처리하는 compiler 설정;
 - Linux의 GCC 및 Clang;
 - Windows의 MSVC;
@@ -25,20 +25,18 @@ data representation, allocation, integer bound, canonical byte processing을 명
 
 ## 저장소 구조
 
-```text
-.github/workflows/ci.yml  formatting, build, test job
-include/trifact/core.h     canonical core data type과 constructor
-include/trifact/trifact.h  public umbrella header
-src/core.c                 canonical core data model 구현
-src/trifact.c              project-level compile-time check
-tests/                     core-type 및 relation CTest executable
-docs/                     영문 명세와 한국어 counterpart
-analysis/                 이후 solver, experiment, benchmark output
-CMakeLists.txt            build definition
-.clang-format             source formatting rule
-```
+| 경로 | 목적 |
+|---|---|
+| `.github/workflows/ci.yml` | Formatting·엄격한 build·test·sanitizer·정적 분석 |
+| `include/trifact/` | 공개 core·relation·incidence·witness API |
+| `src/` | C17 구현과 비공개 운영 heap wrapper |
+| `tests/` | 결정적 test·전수 oracle·불변식·테스트 allocator |
+| `docs/` | 영문 명세와 대응하는 한국어 문서 |
+| `analysis/` | 이후 solver·실험·benchmark output |
+| `CMakeLists.txt` | Build 정의와 선택적 진단 검사 |
+| `.clang-format` | Source formatting 규칙 |
 
-현재 codebase에는 storage를 소유하는 canonical hypergraph representation과 factor-label vector가 포함되어 있다. Native R3HFR relation validator를 구현했다. API와 소유권 규칙은 [코어 API](CORE_API_KR.md)에 정리한다. KeyGen, codec, recovery solver, proof 및 signature는 이후 작업이다.
+현재 codebase는 소유 canonical hypergraph·label vector, native R3HFR relation validator, 검증된 정점 incidence 인덱스, witness label 정규화·동등성 비교를 구현한다. [코어 API](CORE_API_KR.md)에 소유권·오류·CTest target 8개를 정리한다. KeyGen, codec, recovery solver, proof 및 signature는 이후 작업이다.
 
 ## Windows 설정
 
@@ -77,27 +75,49 @@ cmake --build build-clang --parallel
 ctest --test-dir build-clang --output-on-failure
 ```
 
+## Sanitizer와 정적 분석
+
+ASan과 UBSan은 선택 사항이며 일반 build에서는 비활성화한다. 지원되는 GCC 또는 Clang toolchain에서는 다음을 실행한다.
+
+```bash
+cmake -S . -B build-sanitizers -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DTRIFACT_ENABLE_SANITIZERS=ON
+cmake --build build-sanitizers --parallel
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 ctest --test-dir build-sanitizers --output-on-failure
+```
+
+Sanitizer 설정은 compiler와 linker 지원 여부를 확인한다. Instrumentation과 frame pointer 설정은 운영 core·테스트 allocator build·test executable로 전파된다. 지원하지 않는 요청은 configuration 단계에서 명시적으로 실패한다. CI는 Linux GCC·Clang에서 leak detection을 켜고 첫 sanitizer diagnostic에 중단한다. Windows MSVC는 일반 strict build와 test를 유지한다.
+
+GCC 분석에는 `-fanalyzer`를 지원하는 compiler가 필요하며 기존 warning 규칙에 따라 발견 사항을 error로 처리한다.
+
+```bash
+cmake -S . -B build-analysis -DCMAKE_C_COMPILER=gcc -DBUILD_TESTING=OFF -DTRIFACT_ENABLE_GCC_ANALYZER=ON
+cmake --build build-analysis --parallel
+```
+
+다른 compiler 또는 지원하지 않는 GCC에 이 option을 요청하면 configuration이 실패한다. Clang 설정은 text diagnostic을 출력하고 분석 발견 사항을 error로 처리하는 별도 core 분석 target을 제공한다.
+
+```bash
+cmake -S . -B build-clang-analysis -DCMAKE_C_COMPILER=clang -DBUILD_TESTING=OFF
+cmake --build build-clang-analysis --target trifact-clang-analysis
+```
+
+Compiler 분석과 sanitizer coverage는 구현 검사이며 암호학적 안전성의 근거가 아니다. `BUILD_TESTING=OFF`인 운영 전용 build는 실패 주입 allocator를 compile하거나 link하지 않는다.
+
 ## Formatting
 
 현재 C file을 다음 명령으로 검사한다.
 
 ```bash
-clang-format --dry-run --Werror \
-  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
-  src/core.c src/relation.c src/trifact.c \
-  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
+git ls-files -z -- '*.c' '*.h' | xargs -0 clang-format-18 --dry-run --Werror
 ```
 
 formatting 적용:
 
 ```bash
-clang-format -i \
-  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
-  src/core.c src/relation.c src/trifact.c \
-  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
+git ls-files -z -- '*.c' '*.h' | xargs -0 clang-format-18 -i
 ```
 
-새 C header와 source file을 만드는 commit은 같은 commit에서 CI formatting 명령에도 해당 파일을 추가해야 한다. 이후 tooling commit에서 explicit list를 checked manifest로 대체할 수 있다.
+CI는 Ubuntu 24.04에서 지정한 formatter를 설치하고 비공개·테스트 header를 포함해 추적 중인 모든 C source와 header를 검사한다. 새로 stage 또는 commit한 C file은 이 manifest에 자동으로 들어간다. 추적하지 않는 새 file은 stage 전에 직접 format한다.
 
 ## Compiler check
 
@@ -125,14 +145,18 @@ warning을 global하게 suppress하지 않는다. local suppression이 필요하
 
 ## CI 규칙
 
-CI는 독립적인 네 가지 check를 수행한다.
+CI는 독립적인 여덟 가지 check를 수행한다.
 
 1. Linux source formatting;
 2. Linux GCC build 및 test;
 3. Linux Clang build 및 test;
-4. Windows MSVC build 및 test.
+4. Windows MSVC build 및 test;
+5. Linux GCC의 ASan·UBSan·leak 검사;
+6. Linux Clang의 ASan·UBSan·leak 검사;
+7. GCC core 정적 분석;
+8. Clang core 정적 분석.
 
-다음 작업으로 넘어가기 전에 모든 job이 통과해야 한다. CI의 repository-content permission은 read-only이며 package publish, key 생성, release 생성, repository 수정을 수행하지 않는다.
+갱신을 완료로 판단하기 전에 모든 job이 통과해야 한다. CI의 repository-content permission은 read-only이며 package publish, key 생성, release 생성, repository 수정을 수행하지 않는다.
 
 ## Test 규칙
 
@@ -186,5 +210,7 @@ raw benchmark data는 폐기 가능한 build artifact가 아니다. 이후 analy
 - source가 formatting rule을 만족한다.
 - GCC, Clang, MSVC build가 warning을 error로 처리한다.
 - CI가 Linux 및 Windows에서 실행된다.
-- native relation의 정상·실패 사례가 통과한다.
+- 전수 oracle과 할당 실패 test를 포함한 core CTest target 8개가 모두 통과한다.
+- GCC·Clang sanitizer build가 leak detection을 켜고 통과한다.
+- GCC·Clang core 정적 분석에서 발견 사항이 없다.
 - KeyGen, proof, signing 구현을 먼저 넣지 않는다.
