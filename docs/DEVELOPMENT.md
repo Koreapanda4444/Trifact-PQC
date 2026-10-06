@@ -31,14 +31,14 @@ include/trifact/core.h     canonical core data types and constructors
 include/trifact/trifact.h  public umbrella header
 src/core.c                 canonical core data model implementation
 src/trifact.c              project-level compile-time checks
-tests/                     toolchain and core-type CTest executables
+tests/                     core-type and relation CTest executables
 docs/                     English specifications and Korean counterparts
 analysis/                 later solvers, experiments, and benchmark outputs
 CMakeLists.txt            build definition
 .clang-format             source formatting rules
 ```
 
-The codebase contains an owning canonical hypergraph representation and an owning factor-label vector. Relation validation, KeyGen, codecs, recovery solvers, proofs, and signatures remain separate later commits.
+The codebase contains an owning canonical hypergraph representation and an owning factor-label vector. The native R3HFR relation validator is implemented. Its API and ownership rules are documented in [Core API](CORE_API.md). KeyGen, codecs, recovery solvers, proofs, and signatures remain later work.
 
 ## Windows Setup
 
@@ -83,18 +83,18 @@ Check the current C files with:
 
 ```bash
 clang-format --dry-run --Werror \
-  include/trifact/core.h include/trifact/trifact.h \
-  src/core.c src/trifact.c \
-  tests/test_core_types.c tests/test_toolchain.c
+  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
+  src/core.c src/relation.c src/trifact.c \
+  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
 ```
 
 Apply formatting with:
 
 ```bash
 clang-format -i \
-  include/trifact/core.h include/trifact/trifact.h \
-  src/core.c src/trifact.c \
-  tests/test_core_types.c tests/test_toolchain.c
+  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
+  src/core.c src/relation.c src/trifact.c \
+  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
 ```
 
 New C headers and source files must be added to the CI formatting command in the same commit that creates them. A later tooling commit may replace the explicit list with a checked manifest.
@@ -121,7 +121,7 @@ MSVC builds enable:
 /WX
 ```
 
-Warnings are not suppressed globally. A necessary local suppression requires a comment explaining the exact compiler diagnostic and why the code remains correct.
+Warnings are not suppressed globally. A necessary local suppression must be justified in both development documents. Source files contain no code comments.
 
 ## CI Contract
 
@@ -154,7 +154,7 @@ The implementation uses fixed-width integer types from `<stdint.h>` for encoded 
 
 Every calculation involving counts, byte lengths, products, or allocation sizes must check overflow before allocation. Parser input is not trusted. Partial output objects must be cleaned up on failure.
 
-Dynamic allocation is added only where object lifetime and cleanup ownership are documented in the public header or internal module contract.
+Dynamic allocation is added only where object lifetime and cleanup ownership are documented in the bilingual Core API or internal module contract.
 
 ## Dependency Rules
 
@@ -186,4 +186,5 @@ This setup is complete when:
 - the source satisfies the formatting rule;
 - GCC, Clang, and MSVC builds treat warnings as errors;
 - CI runs on Linux and Windows;
-- no hypergraph, KeyGen, proof, or signing algorithm is included prematurely.
+- the native relation positive and negative cases pass;
+- no KeyGen, proof, or signing implementation is included prematurely.

@@ -25,7 +25,7 @@ TRIFACT는 R3HFR(Random 3-Uniform Hypergraph Factorization Recovery) 문제를 �
 
 ## 개발
 
-prototype은 C17과 CMake를 사용하며 GCC, Clang, MSVC build를 자동 검사합니다. [개발 환경](docs/DEVELOPMENT_KR.md)을 참고하십시오.
+prototype은 C17과 CMake를 사용하며 GCC, Clang, MSVC build를 자동 검사합니다. [개발 환경](docs/DEVELOPMENT_KR.md)과 [코어 API](docs/CORE_API_KR.md)를 참고하십시오.
 
 ## 문서 언어
 

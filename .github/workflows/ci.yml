@@ -25,9 +25,12 @@ jobs:
           clang-format --dry-run --Werror
           include/trifact/core.h
           include/trifact/trifact.h
+          include/trifact/relation.h
           src/core.c
+          src/relation.c
           src/trifact.c
           tests/test_core_types.c
+          tests/test_relation.c
           tests/test_toolchain.c
 
   build-and-test:

@@ -31,14 +31,14 @@ include/trifact/core.h     canonical core data type과 constructor
 include/trifact/trifact.h  public umbrella header
 src/core.c                 canonical core data model 구현
 src/trifact.c              project-level compile-time check
-tests/                     toolchain 및 core-type CTest executable
+tests/                     core-type 및 relation CTest executable
 docs/                     영문 명세와 한국어 counterpart
 analysis/                 이후 solver, experiment, benchmark output
 CMakeLists.txt            build definition
 .clang-format             source formatting rule
 ```
 
-현재 codebase에는 storage를 소유하는 canonical hypergraph representation과 factor-label vector가 포함되어 있다. Relation validation, KeyGen, codec, recovery solver, proof 및 signature는 이후의 별도 commit에서 추가한다.
+현재 codebase에는 storage를 소유하는 canonical hypergraph representation과 factor-label vector가 포함되어 있다. Native R3HFR relation validator를 구현했다. API와 소유권 규칙은 [코어 API](CORE_API_KR.md)에 정리한다. KeyGen, codec, recovery solver, proof 및 signature는 이후 작업이다.
 
 ## Windows 설정
 
@@ -83,18 +83,18 @@ ctest --test-dir build-clang --output-on-failure
 
 ```bash
 clang-format --dry-run --Werror \
-  include/trifact/core.h include/trifact/trifact.h \
-  src/core.c src/trifact.c \
-  tests/test_core_types.c tests/test_toolchain.c
+  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
+  src/core.c src/relation.c src/trifact.c \
+  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
 ```
 
 formatting 적용:
 
 ```bash
 clang-format -i \
-  include/trifact/core.h include/trifact/trifact.h \
-  src/core.c src/trifact.c \
-  tests/test_core_types.c tests/test_toolchain.c
+  include/trifact/core.h include/trifact/relation.h include/trifact/trifact.h \
+  src/core.c src/relation.c src/trifact.c \
+  tests/test_core_types.c tests/test_relation.c tests/test_toolchain.c
 ```
 
 새 C header와 source file을 만드는 commit은 같은 commit에서 CI formatting 명령에도 해당 파일을 추가해야 한다. 이후 tooling commit에서 explicit list를 checked manifest로 대체할 수 있다.
@@ -121,7 +121,7 @@ MSVC build는 다음을 활성화한다.
 /WX
 ```
 
-warning을 global하게 suppress하지 않는다. local suppression이 필요하면 정확한 compiler diagnostic과 code가 올바른 이유를 설명하는 comment가 필요하다.
+warning을 global하게 suppress하지 않는다. local suppression이 필요하면 양쪽 개발 문서에 근거를 남긴다. Source file에는 코드 주석을 넣지 않는다.
 
 ## CI 규칙
 
@@ -154,7 +154,7 @@ implementation은 encoded protocol value에 `<stdint.h>`의 fixed-width integer 
 
 count, byte length, product, allocation size를 포함하는 모든 계산은 allocation 전에 overflow를 검사해야 한다. Parser input을 신뢰하지 않는다. 실패 시 partial output object를 정리해야 한다.
 
-dynamic allocation은 object lifetime과 cleanup ownership을 public header 또는 internal module contract에 문서화한 경우에만 추가한다.
+dynamic allocation은 object lifetime과 cleanup ownership을 영문·한국어 코어 API 또는 internal module contract에 문서화한 경우에만 추가한다.
 
 ## Dependency 규칙
 
@@ -186,4 +186,5 @@ raw benchmark data는 폐기 가능한 build artifact가 아니다. 이후 analy
 - source가 formatting rule을 만족한다.
 - GCC, Clang, MSVC build가 warning을 error로 처리한다.
 - CI가 Linux 및 Windows에서 실행된다.
-- hypergraph, KeyGen, proof, signing algorithm을 조기에 포함하지 않는다.
+- native relation의 정상·실패 사례가 통과한다.
+- KeyGen, proof, signing 구현을 먼저 넣지 않는다.
