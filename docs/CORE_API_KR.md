@@ -35,6 +35,14 @@
 
 인자·파라미터 조건·예상 edge 수·witness 길이·label 범위를 먼저 확인하고 degree와 국소 중복을 검사한다. 임시 메모리는 `O(n + nd)`, 계산량은 `O(n + nd + m)`이다. 할당이나 산술 실패는 오류이며 factorization이 없다는 판정으로 해석하지 않는다.
 
+## 검증된 incidence 인덱스
+
+`trifact_incidence_index_create(out_index, hypergraph, factor_count)`는 관계의 파라미터 조건·edge 수·모든 정점의 degree를 확인한 뒤 소유권을 가진 인덱스를 반환한다. 저장소 크기의 모든 곱셈을 검사하며 불규칙 그래프를 거부한다. witness를 받거나 검증하지 않는다. 각 정점의 항목 수는 정확히 `d`이고 전체 항목 수는 `nd = 3m`이다.
+
+`trifact_incidence_index_vertex_edges(index, vertex, out_edges, out_count)`는 canonical edge index를 오름차순으로 담은 읽기 전용 row 참조를 반환한다. 두 출력 인자는 필수다. 실패하면 제공된 edge 포인터 slot을 `NULL`, 개수 slot을 0으로 만든다. 범위 밖 정점은 `VERTEX_OUT_OF_RANGE`를 반환한다. 정점·edge·factor 개수 accessor는 `NULL` 인덱스에 대해 0을 반환한다.
+
+인덱스는 row를 독립적으로 소유하므로 원본 그래프를 해제해도 사용할 수 있다. edge 번호는 원본의 canonical edge 순서를 가리킨다. 생성 계산량은 `O(n + m)`, 임시·유지 저장소는 `O(n + nd)`, 정점 조회 계산량은 상수다. 생성·해제의 소유권 규칙은 코어 컨테이너와 같다. `trifact.incidence`는 정확한 row·총합·정렬·원본 해제 후 사용·잘못된 그래프·accessor 실패를 검사한다.
+
 ## 테스트
 
 `trifact.relation` CTest target은 정상 factorization과 각 실패 분류를 diagnostic index·diagnostic 생략 경로와 함께 검사한다. 코어는 코드 주석 없는 C17이다. 키 생성과 proof 구현은 이후 작업이다.

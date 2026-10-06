@@ -4,6 +4,7 @@
 #include <limits.h>
 
 #include "trifact/core.h"
+#include "trifact/incidence.h"
 #include "trifact/relation.h"
 
 #if CHAR_BIT != 8

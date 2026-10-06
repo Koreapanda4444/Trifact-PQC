@@ -23,7 +23,7 @@ function(trifact_enable_warnings target_name)
     endif()
 endfunction()
 
-add_library(trifact STATIC src/core.c src/relation.c src/trifact.c)
+add_library(trifact STATIC src/core.c src/incidence.c src/relation.c src/trifact.c)
 
 target_compile_features(trifact PUBLIC c_std_17)
 target_include_directories(
@@ -48,4 +48,5 @@ if(BUILD_TESTING)
     trifact_add_test(trifact_core_types_tests trifact.core-types tests/test_core_types.c)
     trifact_add_test(trifact_relation_tests trifact.relation tests/test_relation.c)
     trifact_add_test(trifact_relation_oracle_tests trifact.relation-oracle tests/test_relation_oracle.c)
+    trifact_add_test(trifact_incidence_tests trifact.incidence tests/test_incidence.c)
 endif()

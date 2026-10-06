@@ -24,12 +24,15 @@ jobs:
         run: >-
           clang-format --dry-run --Werror
           include/trifact/core.h
+          include/trifact/incidence.h
           include/trifact/trifact.h
           include/trifact/relation.h
           src/core.c
+          src/incidence.c
           src/relation.c
           src/trifact.c
           tests/test_core_types.c
+          tests/test_incidence.c
           tests/test_relation.c
           tests/test_relation_oracle.c
           tests/test_toolchain.c

@@ -35,6 +35,14 @@ The relation enforces `n >= 6`, `n % 3 == 0`, `2 <= d <= (n-1)(n-2)/2`, `m = dn/
 
 The validator first checks arguments, parameter domains, expected edge count, witness length, and label range. It then checks degree counts before local uniqueness. Workspace uses `O(n + nd)` memory and execution uses `O(n + nd + m)` work. Allocation and arithmetic failures are errors, not a claim that an instance has no factorization.
 
+## Validated incidence indexes
+
+`trifact_incidence_index_create(out_index, hypergraph, factor_count)` checks the relation's parameter domain, edge count, and degree of every vertex before returning an owning index. It checks all storage products and rejects irregular graphs. It does not accept or validate a witness. Each vertex has exactly `d` entries; the total is `nd = 3m`.
+
+`trifact_incidence_index_vertex_edges(index, vertex, out_edges, out_count)` returns a borrowed, read-only row of canonical edge indexes in increasing order. Both output arguments are required. On failure it clears every supplied edge-pointer slot to `NULL` and count slot to zero; out-of-range vertices return `VERTEX_OUT_OF_RANGE`. The vertex, edge, and factor-count accessors return zero for a `NULL` index.
+
+The index owns its rows independently of the source graph and survives that graph's destruction. Its edge numbers refer to the original canonical edge order. Construction uses `O(n + m)` work and `O(n + nd)` temporary and retained storage; querying a vertex uses constant work. Constructor and destructor ownership rules match the core containers. `trifact.incidence` checks exact rows, totals, ordering, source lifetime independence, invalid graphs, and accessor failures.
+
 ## Tests
 
 The `trifact.relation` CTest target checks valid factorization and each failure category, including diagnostic indexes and the optional-diagnostic path. All core source is C17 and contains no code comments. Key generation and proof implementation remain later work.
