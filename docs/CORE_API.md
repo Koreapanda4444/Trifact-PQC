@@ -38,3 +38,5 @@ The validator first checks arguments, parameter domains, expected edge count, wi
 ## Tests
 
 The `trifact.relation` CTest target checks valid factorization and each failure category, including diagnostic indexes and the optional-diagnostic path. All core source is C17 and contains no code comments. Key generation and proof implementation remain later work.
+
+`trifact.relation-oracle` independently checks whether each factor is a disjoint edge cover of every vertex. It does not use the validator's degree counters or incident-label table. It exhausts all simple six-vertex graphs with zero through four edges and all labels in `{0,1,2}` for `d = 2`: 424,996 candidates, including wrong-size and irregular public graphs and out-of-range labels. Exactly 90 candidates satisfy the relation. Additional exhaustive labelings cover a six-vertex degree-three graph, a nine-vertex graph, and invalid vertex-count domains. These bounded tests establish implementation agreement, not cryptographic hardness.
