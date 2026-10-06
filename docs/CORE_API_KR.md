@@ -56,3 +56,5 @@
 `trifact.relation` CTest target은 정상 factorization과 각 실패 분류를 diagnostic index·diagnostic 생략 경로와 함께 검사한다. 코어는 코드 주석 없는 C17이다. 키 생성과 proof 구현은 이후 작업이다.
 
 `trifact.relation-oracle`은 각 factor가 모든 정점을 중복 없이 덮는 edge cover인지 독립적으로 판정한다. 검증기의 degree counter나 incident-label table을 사용하지 않는다. 정점 6개·edge 0~4개인 모든 simple graph와 `d = 2`에 대한 `{0,1,2}`의 모든 label을 전수 검사한다. 크기 오류·불규칙 공개 그래프·범위 밖 label을 포함한 후보 424,996개 중 정확히 90개가 관계를 만족한다. 정점 6개·degree 3인 그래프, 정점 9개인 그래프, 정점 수 조건을 위반한 그래프의 label도 전수 검사한다. 이 제한된 검사는 구현 간 일치를 확인하며 암호학적 난도를 입증하지 않는다.
+
+`trifact.invariants`는 정점 6개의 모든 치환 720개를 degree 2·3 factorization, 잘못된 witness, 불규칙 그래프에 적용한다. 치환한 triple을 canonical 형태로 바꾼 뒤 edge-label 쌍을 함께 정렬하고 관계 판정을 확인한다. 인덱스의 정점 포함 여부·정렬·edge별 incidence 3개도 독립적으로 검사한다. 정점 9개 치환과 degree 3의 모든 label 치환 6개도 검사한다. label을 함께 옮기지 않으면 관계가 깨지는 사례, 정점 치환이 witness의 동등 패턴을 바꾸는 사례를 확인해 두 연산의 구분을 유지한다. 중복·누락·범위 밖·순서 오류·비incident 항목을 인덱스 row의 복사본에 의도적으로 넣어 검사하며 라이브러리의 읽기 전용 저장소는 수정하지 않는다.

@@ -35,6 +35,7 @@ jobs:
           src/witness.c
           tests/test_core_types.c
           tests/test_incidence.c
+          tests/test_invariants.c
           tests/test_relation.c
           tests/test_relation_oracle.c
           tests/test_toolchain.c
