@@ -43,6 +43,14 @@ The validator first checks arguments, parameter domains, expected edge count, wi
 
 The index owns its rows independently of the source graph and survives that graph's destruction. Its edge numbers refer to the original canonical edge order. Construction uses `O(n + m)` work and `O(n + nd)` temporary and retained storage; querying a vertex uses constant work. Constructor and destructor ownership rules match the core containers. `trifact.incidence` checks exact rows, totals, ordering, source lifetime independence, invalid graphs, and accessor failures.
 
+## Witness label symmetry
+
+`trifact_label_vector_normalize(out_labels, labels)` returns a new owning vector whose labels are numbered `0,1,...` in first-occurrence order, without reordering edges. For example, `(4,4,2,4,7,2,7)` becomes `(0,0,1,0,2,1,2)`. Empty vectors and arbitrary `uint32_t` label names, including `UINT32_MAX`, are accepted. The source is unchanged, output failures clear the slot, and normalization is idempotent. It uses `O(m^2)` comparisons and `O(m)` workspace, without allocating according to the largest label name.
+
+`trifact_label_vectors_equivalent(left, right, out_equivalent)` returns whether two equal-length vectors have the same equality pattern at the same edge positions. The result is 0 or 1; differing lengths return 0. Missing arguments return `NULL_ARGUMENT` and leave any supplied result unchanged. This query performs `O(m^2)` work without allocating.
+
+These helpers do not validate factorization. For witnesses on the same fixed canonical graph, equivalence expresses a single global label permutation. Vertex permutations, edge reordering, and graph isomorphisms are separate operations and are not collapsed. `trifact.witness` checks examples, arbitrary label names, idempotence, source preservation, equivalence in both directions, split and merged classes, differing positions and lengths, and empty inputs.
+
 ## Tests
 
 The `trifact.relation` CTest target checks valid factorization and each failure category, including diagnostic indexes and the optional-diagnostic path. All core source is C17 and contains no code comments. Key generation and proof implementation remain later work.

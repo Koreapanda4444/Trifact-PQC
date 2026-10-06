@@ -43,6 +43,14 @@
 
 인덱스는 row를 독립적으로 소유하므로 원본 그래프를 해제해도 사용할 수 있다. edge 번호는 원본의 canonical edge 순서를 가리킨다. 생성 계산량은 `O(n + m)`, 임시·유지 저장소는 `O(n + nd)`, 정점 조회 계산량은 상수다. 생성·해제의 소유권 규칙은 코어 컨테이너와 같다. `trifact.incidence`는 정확한 row·총합·정렬·원본 해제 후 사용·잘못된 그래프·accessor 실패를 검사한다.
 
+## Witness label 대칭성
+
+`trifact_label_vector_normalize(out_labels, labels)`는 edge 순서를 유지하면서 label의 첫 등장 순서대로 `0,1,...`을 부여한 새 소유 vector를 반환한다. 예를 들어 `(4,4,2,4,7,2,7)`은 `(0,0,1,0,2,1,2)`가 된다. 빈 vector와 `UINT32_MAX`를 포함한 임의의 `uint32_t` label 이름을 허용한다. 원본은 유지되며 실패 시 출력 slot을 비운다. 정규화는 멱등성을 가진다. 비교 횟수는 `O(m^2)`, 임시 메모리는 `O(m)`이며 가장 큰 label 이름에 비례해 할당하지 않는다.
+
+`trifact_label_vectors_equivalent(left, right, out_equivalent)`는 길이가 같은 두 vector가 같은 edge 위치에서 동일한 동등 패턴을 가지는지 반환한다. 결과는 0 또는 1이며 길이가 다르면 0이다. 인자가 없으면 `NULL_ARGUMENT`를 반환하고 제공된 결과값은 유지한다. 할당 없이 `O(m^2)` 계산량을 사용한다.
+
+이 함수들은 factorization을 검증하지 않는다. 동일한 canonical 그래프에 대한 witness끼리 비교할 때 동등성은 하나의 전역 label 치환을 의미한다. 정점 치환·edge 재배열·그래프 동형은 별도 연산이며 합치지 않는다. `trifact.witness`는 예제·임의 label 이름·멱등성·원본 보존·양방향 동등성·class 분할과 합병·위치와 길이 차이·빈 입력을 검사한다.
+
 ## 테스트
 
 `trifact.relation` CTest target은 정상 factorization과 각 실패 분류를 diagnostic index·diagnostic 생략 경로와 함께 검사한다. 코어는 코드 주석 없는 C17이다. 키 생성과 proof 구현은 이후 작업이다.

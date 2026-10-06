@@ -27,15 +27,18 @@ jobs:
           include/trifact/incidence.h
           include/trifact/trifact.h
           include/trifact/relation.h
+          include/trifact/witness.h
           src/core.c
           src/incidence.c
           src/relation.c
           src/trifact.c
+          src/witness.c
           tests/test_core_types.c
           tests/test_incidence.c
           tests/test_relation.c
           tests/test_relation_oracle.c
           tests/test_toolchain.c
+          tests/test_witness.c
 
   build-and-test:
     name: ${{ matrix.name }}
