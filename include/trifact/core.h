@@ -35,7 +35,8 @@ typedef enum {
     TRIFACT_STATUS_INVALID_DOMAIN,
     TRIFACT_STATUS_INVALID_PRIMITIVE_MODE,
     TRIFACT_STATUS_INTERRUPTED,
-    TRIFACT_STATUS_RANDOMNESS_FAILURE
+    TRIFACT_STATUS_RANDOMNESS_FAILURE,
+    TRIFACT_STATUS_PLATFORM_UNAVAILABLE
 } trifact_status_t;
 
 trifact_status_t trifact_edge_init(trifact_edge_t *out_edge, trifact_vertex_t vertex_count,

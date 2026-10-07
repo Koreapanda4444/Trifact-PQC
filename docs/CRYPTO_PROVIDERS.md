@@ -38,6 +38,8 @@ Callbacks must return in bounded time and respect the provided capacity. The wra
 
 Linux uses blocking `getrandom(..., 0)`, limits each callback request to 256 bytes, translates `EINTR` to `INTERRUPTED`, and delegates bounded retry and short-read assembly to the common provider. All other failures close the provider. Windows uses `BCryptGenRandom(NULL, ..., BCRYPT_USE_SYSTEM_PREFERRED_RNG)` and links the system `bcrypt` library. Neither adapter adds a device-file fallback. An unsupported platform reports `PLATFORM_UNAVAILABLE`.
 
+`trifact_entropy_provider_create_system` selects the compiled platform adapter and the caller's interruption budget. It clears its output slot on errors. The `bcrypt` dependency is a Windows system library linked by CMake, with no package download. The OS test requests 513 bytes to cross the adapter chunk boundary and verifies guarded output and repeat reads; it makes no statistical quality claim.
+
 ## Research streams and sampling
 
 Research mode is explicit and deterministic. It accepts a 32-byte seed, a registered research parameter name, and a U32 attempt index, using precisely `TRIFACT/keygen-attempt` with `[Name(parameter_id), seed, U32(attempt)]`. It obtains no system entropy. It represents reproducible public experiments, not an entropy source for secret production keys. The seed is absorbed and is not retained as a separate caller-visible key component.
@@ -55,4 +57,4 @@ Basic lifecycle tests accompany the provider implementation. Later numbered deli
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom contract](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-The streaming API, built-in backend, framed hash API, and callback entropy provider are implemented. `trifact.shake` checks the lifecycle and `trifact.shake-vectors` retains the independent reference corpus. `trifact.hash` and `trifact.hash-substitutions` check framing and the registry. `trifact.entropy` checks short reads, interruption budgets, zero and excessive progress, staged output, permanent failure, and null-safe destruction. Operating-system adapters and research sampling remain subsequent deliveries.
+The streaming API, built-in backend, framed hash API, and callback entropy provider are implemented. `trifact.shake` checks the lifecycle and `trifact.shake-vectors` retains the independent reference corpus. `trifact.hash` and `trifact.hash-substitutions` check framing and the registry. `trifact.entropy` checks short reads, interruption budgets, zero and excessive progress, staged output, permanent failure, and null-safe destruction. Operating-system adapters are implemented and `trifact.entropy-system` exercises the selected platform. Research sampling remains a subsequent delivery.

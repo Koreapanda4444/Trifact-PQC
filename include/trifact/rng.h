@@ -20,6 +20,8 @@ trifact_status_t trifact_entropy_provider_create(trifact_entropy_provider_t **ou
                                                  uint32_t interruption_limit);
 trifact_status_t trifact_entropy_read_exact(trifact_entropy_provider_t *provider,
                                             unsigned char *output, size_t length);
+trifact_status_t trifact_entropy_provider_create_system(trifact_entropy_provider_t **out_provider,
+                                                        uint32_t interruption_limit);
 trifact_random_source_t trifact_entropy_source(trifact_entropy_provider_t *provider);
 void trifact_entropy_provider_destroy(trifact_entropy_provider_t *provider);
 

@@ -38,6 +38,8 @@ Callback은 제한된 시간 안에 반환하고 제공된 용량을 지켜야 �
 
 Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 256바이트를 처리한다. `EINTR`는 `INTERRUPTED`로 바꾸며 제한된 재시도와 짧은 read 조립은 공통 provider가 처리한다. 다른 실패는 provider를 닫는다. Windows는 `BCryptGenRandom(NULL, ..., BCRYPT_USE_SYSTEM_PREFERRED_RNG)`을 사용하고 시스템 `bcrypt` library를 연결한다. 두 adapter 모두 device file fallback을 추가하지 않는다. 지원하지 않는 platform은 `PLATFORM_UNAVAILABLE`를 반환한다.
 
+`trifact_entropy_provider_create_system`은 compile된 platform adapter와 호출자의 interruption 예산을 선택한다. 오류 시 출력 slot을 NULL로 만든다. `bcrypt`는 CMake가 연결하는 Windows 시스템 library이며 package 다운로드가 없다. OS test는 513바이트를 요청해 adapter chunk 경계를 넘기고 출력 guard와 반복 read를 검사한다. 통계적 품질을 주장하지 않는다.
+
 ## 연구 stream과 sampling
 
 연구 mode는 명시적이며 결정론적이다. 32바이트 seed·등록 연구 parameter 이름·U32 attempt index를 받아 정확한 `TRIFACT/keygen-attempt`와 `[Name(parameter_id), seed, U32(attempt)]`를 사용한다. 시스템 entropy를 얻지 않는다. 재현 가능한 공개 실험용이며 비밀 운영 key를 위한 entropy source가 아니다. Seed는 absorb하며 별도의 호출자 공개 key component로 보관하지 않는다.
@@ -55,4 +57,4 @@ Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom 계약](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-Streaming API·내장 backend·framed hash API·callback entropy provider를 구현했다. `trifact.shake`는 생명주기를 검사하며 `trifact.shake-vectors`는 독립 참조 자료를 보관한다. `trifact.hash`·`trifact.hash-substitutions`는 framing과 registry를 검사한다. `trifact.entropy`는 short read·interruption 예산·0과 초과 progress·임시 출력·영구 실패·NULL 안전 해제를 검사한다. OS adapter와 연구 sampling은 다음 작업이다.
+Streaming API·내장 backend·framed hash API·callback entropy provider를 구현했다. `trifact.shake`는 생명주기를 검사하며 `trifact.shake-vectors`는 독립 참조 자료를 보관한다. `trifact.hash`·`trifact.hash-substitutions`는 framing과 registry를 검사한다. `trifact.entropy`는 short read·interruption 예산·0과 초과 progress·임시 출력·영구 실패·NULL 안전 해제를 검사한다. OS adapter를 구현했고 `trifact.entropy-system`은 선택한 platform을 검사한다. 연구 sampling은 다음 작업이다.
