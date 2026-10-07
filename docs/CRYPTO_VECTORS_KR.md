@@ -19,3 +19,5 @@
 ## 연구 stream 출처
 
 `tests/research_vectors.h`는 Python 3.12 `hashlib.shake_256`으로 독립 계산한 273바이트 출력 9개를 보관한다. 공개 seed는 `00`부터 `1f`까지의 byte다. Parameter 이름 `toy`·`small`·`medium` 각각에 attempt `0`·`1`·`4294967295`를 사용한다. 각 입력은 `[Name(parameter_id), seed, U32(attempt)]` field를 사용하는 규정된 `TRIFACT/keygen-attempt` stream frame이며 길이·attempt 정수는 모두 big-endian이다. 출력 길이를 덧붙이지 않는다. Fixture는 squeeze 경계 두 개와 전체 U32 attempt encoding을 검사한다. `trifact.research`는 전체 read와 불규칙 chunk read를 비교하고 호출자 저장소 변경 전에 seed를 absorb했는지 확인한다. `trifact.sampling`은 결정론적 순열 재현·범위·중복 없음을 검사한다.
+
+`tests/sampling_vectors.h`는 같은 공개 seed와 attempt 1에서 `toy`·`small`·`medium`의 크기 12·24·60 순열 및 각 stream의 뒤이은 bound `1,2,3,7,12,4294967295,4294967296` draw를 추가로 보관한다. 기대값은 `hashlib` stream byte, Python 임의 정밀도 구간 한계 `(2**64 // q) * q`, `x >= limit` 거부, descending Fisher-Yates를 사용해 독립 계산했다. `trifact.sampling-vectors`는 전체 순열과 이후 draw를 각각 비교하므로 stream 소비와 U64 byte 순서도 platform 간 재현에 포함된다. C test build와 실행에 Python이 필요하지 않다.

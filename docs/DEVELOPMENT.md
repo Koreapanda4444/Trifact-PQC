@@ -28,7 +28,7 @@ C was selected for the reference implementation to keep data representation, all
 | Path | Purpose |
 |---|---|
 | `.github/workflows/ci.yml` | Formatting, strict builds, tests, sanitizers, and static analysis |
-| `include/trifact/` | Public core, relation, incidence, and witness APIs |
+| `include/trifact/` | Public core, relation, incidence, witness, hash, entropy, research, and sampling APIs |
 | `src/` | C17 implementation and private production heap wrapper |
 | `tests/` | Deterministic tests, exhaustive oracle, invariants, and test allocator |
 | `docs/` | English specifications and matching Korean documents |
@@ -36,7 +36,7 @@ C was selected for the reference implementation to keep data representation, all
 | `CMakeLists.txt` | Build definition and optional diagnostic checks |
 | `.clang-format` | Source formatting rules |
 
-The codebase implements owning canonical hypergraphs and label vectors, the native R3HFR relation validator, validated vertex incidence indexes, and witness-label normalization and equivalence. [Core API](CORE_API.md) documents ownership, errors, and the eight CTest targets. KeyGen, codecs, recovery solvers, proofs, and signatures remain later work.
+The codebase implements owning canonical hypergraphs and label vectors, the native R3HFR relation validator, validated vertex incidence indexes, and witness-label normalization and equivalence. [Core API](CORE_API.md) documents their ownership, errors, and eight core CTest targets. [Primitive and Randomness Providers](CRYPTO_PROVIDERS.md) documents the implemented SHAKE256, domain hashes, OS entropy, research streams, and sampling. [Cryptographic Test Vectors](CRYPTO_VECTORS.md) records independent expectations. There are 20 CTest targets on Linux and 19 on Windows; the additional Linux test substitutes `getrandom` only in its own executable. Windows links the native system `bcrypt` library. KeyGen, codecs, recovery solvers, proofs, and signatures remain later work.
 
 ## Windows Setup
 
@@ -210,7 +210,7 @@ This setup is complete when:
 - the source satisfies the formatting rule;
 - GCC, Clang, and MSVC builds treat warnings as errors;
 - CI runs on Linux and Windows;
-- all eight core CTest targets pass, including the exhaustive oracle and allocation-failure tests;
+- all registered CTest targets pass, including core and cryptographic oracles, retained vectors, entropy failures, and allocation-failure tests;
 - GCC and Clang sanitizer builds pass with leak detection;
 - GCC and Clang core static analysis reports no findings;
 - no KeyGen, proof, or signing implementation is included prematurely.

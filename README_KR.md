@@ -25,11 +25,11 @@ TRIFACT는 R3HFR(Random 3-Uniform Hypergraph Factorization Recovery) 문제를 �
 
 ## 개발
 
-prototype은 C17과 CMake를 사용하며 GCC·Clang·MSVC build, Linux sanitizer, compiler 정적 분석을 자동 검사합니다. 현재 core는 relation 검증, incidence 인덱스, witness label 정규화를 포함합니다. [개발 환경](docs/DEVELOPMENT_KR.md)과 [코어 API](docs/CORE_API_KR.md)를 참고하십시오.
+prototype은 C17과 CMake를 사용하며 GCC·Clang·MSVC build, Linux sanitizer, compiler 정적 분석을 자동 검사합니다. 현재 core는 relation 검증, incidence 인덱스, witness label 정규화, SHAKE256, framed domain hash, 실패 시 닫히는 OS entropy, 결정론적 연구 stream, 균등 sampling을 포함합니다. [개발 환경](docs/DEVELOPMENT_KR.md), [코어 API](docs/CORE_API_KR.md), [원시 함수와 난수 공급자](docs/CRYPTO_PROVIDERS_KR.md)를 참고하십시오.
 
 ## 문서 언어
 
-영문 문서를 기준으로 합니다. 한국어 번역본은 동일한 이름에 `_KR` 접미사를 붙여 제공합니다. [원시 함수와 난수 공급자](docs/CRYPTO_PROVIDERS_KR.md)는 다음 구현 구간의 backend·실패 계약을 고정합니다.
+영문 문서를 기준으로 합니다. 한국어 번역본은 동일한 이름에 `_KR` 접미사를 붙여 제공합니다. [암호 테스트 벡터](docs/CRYPTO_VECTORS_KR.md)는 보관한 독립 정답과 출처를 기록합니다.
 
 ## 보안
 

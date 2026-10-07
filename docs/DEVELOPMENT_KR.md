@@ -28,7 +28,7 @@ data representation, allocation, integer bound, canonical byte processing을 명
 | 경로 | 목적 |
 |---|---|
 | `.github/workflows/ci.yml` | Formatting·엄격한 build·test·sanitizer·정적 분석 |
-| `include/trifact/` | 공개 core·relation·incidence·witness API |
+| `include/trifact/` | 공개 core·relation·incidence·witness·hash·entropy·연구·sampling API |
 | `src/` | C17 구현과 비공개 운영 heap wrapper |
 | `tests/` | 결정적 test·전수 oracle·불변식·테스트 allocator |
 | `docs/` | 영문 명세와 대응하는 한국어 문서 |
@@ -36,7 +36,7 @@ data representation, allocation, integer bound, canonical byte processing을 명
 | `CMakeLists.txt` | Build 정의와 선택적 진단 검사 |
 | `.clang-format` | Source formatting 규칙 |
 
-현재 codebase는 소유 canonical hypergraph·label vector, native R3HFR relation validator, 검증된 정점 incidence 인덱스, witness label 정규화·동등성 비교를 구현한다. [코어 API](CORE_API_KR.md)에 소유권·오류·CTest target 8개를 정리한다. KeyGen, codec, recovery solver, proof 및 signature는 이후 작업이다.
+현재 codebase는 소유 canonical hypergraph·label vector, native R3HFR relation validator, 검증된 정점 incidence 인덱스, witness label 정규화·동등성 비교를 구현한다. [코어 API](CORE_API_KR.md)에 해당 소유권·오류·core CTest target 8개를 정리한다. [원시 함수와 난수 공급자](CRYPTO_PROVIDERS_KR.md)는 구현한 SHAKE256·domain hash·OS entropy·연구 stream·sampling을 설명한다. [암호 테스트 벡터](CRYPTO_VECTORS_KR.md)는 독립 정답을 기록한다. Linux의 CTest target은 20개, Windows는 19개다. 추가 Linux test는 자신의 executable에서만 `getrandom`을 대체한다. Windows는 native 시스템 `bcrypt` library를 연결한다. KeyGen, codec, recovery solver, proof 및 signature는 이후 작업이다.
 
 ## Windows 설정
 
@@ -210,7 +210,7 @@ raw benchmark data는 폐기 가능한 build artifact가 아니다. 이후 analy
 - source가 formatting rule을 만족한다.
 - GCC, Clang, MSVC build가 warning을 error로 처리한다.
 - CI가 Linux 및 Windows에서 실행된다.
-- 전수 oracle과 할당 실패 test를 포함한 core CTest target 8개가 모두 통과한다.
+- core·암호 oracle, 보관 vector, entropy 실패, 할당 실패 test를 포함한 등록 CTest target이 모두 통과한다.
 - GCC·Clang sanitizer build가 leak detection을 켜고 통과한다.
 - GCC·Clang core 정적 분석에서 발견 사항이 없다.
 - KeyGen, proof, signing 구현을 먼저 넣지 않는다.

@@ -52,7 +52,9 @@ Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 
 
 ## 검증과 출처
 
-기본 생명주기 test는 provider 구현과 함께 추가한다. 이후 번호별 작업에서 공식 SHAKE256 known answer, 독립 framing vector, substitution, scripted entropy 중단·실패, sampling 경계, platform 간 연구 재현을 추가한다. 공개 test seed와 vector는 실제 비밀 자료가 아니다. 검사 통과가 TRIFACT의 안전성을 입증하지는 않는다.
+Test는 공식 SHAKE256 known answer, 독립 framing vector, substitution, scripted entropy 중단·실패, sampling 경계, platform 간 연구 재현을 검사한다. `trifact.rng-boundaries`는 허용하는 최대 U64, 선택 bound의 모든 거부 tail 값, 재시도 소진, source 오류, bound `1`·`2^32`, big-endian draw, 출력 유지를 검사한다. 유한 oracle은 작은 완전한 허용 block의 나머지를 세고 정점 4개 순열의 선택 경로 24개를 전수 검사하여 독립적으로 열거한 순열과 비교한다. 이는 제한된 결정적 검사이며 source의 난수성에 대한 통계적 증명이 아니다.
+
+`trifact.entropy-system-mock`은 Linux `getrandom`을 자신의 test executable에서만 compile 시 대체한다. Flag, 요청당 256바이트 제한, 양수 short read, `EINTR`, 그 외 오류, 진행 없음, 불가능한 보고 길이를 검사한다. Windows CI는 실제 BCrypt adapter와 공통 provider의 scripted 실패를 검사한다. `trifact.rng-allocation`은 entropy를 사용하는 임시 순열을 포함한 primitive·난수 wrapper의 모든 heap 요청을 실패시킨다. 소유권 누수 없음, read 전 할당 실패 시 소비 없음, 할당 오류 후 provider 재사용, release 직전 byte 비움을 확인한다. 운영 library에는 실패 주입 제어가 없다. 공개 test seed와 vector는 실제 비밀 자료가 아니다. 검사 통과가 TRIFACT의 안전성을 입증하지는 않는다.
 
 - [NIST FIPS 202](https://doi.org/10.6028/NIST.FIPS.202)
 - [NIST CAVP secure hashing vector](https://csrc.nist.gov/Projects/cryptographic-algorithm-validation-program/Secure-Hashing)

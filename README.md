@@ -25,11 +25,11 @@ The project is currently in the design and feasibility-validation stage. It does
 
 ## Development
 
-The prototype uses C17 and CMake with automated GCC, Clang, and MSVC builds, Linux sanitizers, and compiler static analysis. The current core includes relation validation, incidence indexes, and witness-label normalization. See [Development Environment](docs/DEVELOPMENT.md) and [Core API](docs/CORE_API.md).
+The prototype uses C17 and CMake with automated GCC, Clang, and MSVC builds, Linux sanitizers, and compiler static analysis. The current core includes relation validation, incidence indexes, witness-label normalization, SHAKE256, framed domain hashes, fail-closed OS entropy, deterministic research streams, and unbiased sampling. See [Development Environment](docs/DEVELOPMENT.md), [Core API](docs/CORE_API.md), and [Primitive and Randomness Providers](docs/CRYPTO_PROVIDERS.md).
 
 ## Documentation
 
-English documents are canonical. Korean translations are provided in matching files with the `_KR` suffix. [Primitive and Randomness Providers](docs/CRYPTO_PROVIDERS.md) fixes the backend and failure contracts for the next implementation stage.
+English documents are canonical. Korean translations are provided in matching files with the `_KR` suffix. [Cryptographic Test Vectors](docs/CRYPTO_VECTORS.md) records the retained independent answers and their provenance.
 
 ## Security
 
