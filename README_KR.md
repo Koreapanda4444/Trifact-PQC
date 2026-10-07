@@ -29,7 +29,7 @@ prototype은 C17과 CMake를 사용하며 GCC·Clang·MSVC build, Linux sanitize
 
 ## 문서 언어
 
-영문 문서를 기준으로 합니다. 한국어 번역본은 동일한 이름에 `_KR` 접미사를 붙여 제공합니다.
+영문 문서를 기준으로 합니다. 한국어 번역본은 동일한 이름에 `_KR` 접미사를 붙여 제공합니다. [원시 함수와 난수 공급자](docs/CRYPTO_PROVIDERS_KR.md)는 다음 구현 구간의 backend·실패 계약을 고정합니다.
 
 ## 보안
 

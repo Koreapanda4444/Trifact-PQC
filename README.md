@@ -29,7 +29,7 @@ The prototype uses C17 and CMake with automated GCC, Clang, and MSVC builds, Lin
 
 ## Documentation
 
-English documents are canonical. Korean translations are provided in matching files with the `_KR` suffix.
+English documents are canonical. Korean translations are provided in matching files with the `_KR` suffix. [Primitive and Randomness Providers](docs/CRYPTO_PROVIDERS.md) fixes the backend and failure contracts for the next implementation stage.
 
 ## Security
 
