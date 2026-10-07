@@ -110,6 +110,7 @@ if(BUILD_TESTING)
     trifact_add_test(trifact_shake_tests trifact.shake tests/test_shake.c)
     trifact_add_test(trifact_shake_vector_tests trifact.shake-vectors tests/test_shake_vectors.c)
     trifact_add_test(trifact_hash_tests trifact.hash tests/test_hash.c)
+    trifact_add_test(trifact_hash_substitution_tests trifact.hash-substitutions tests/test_hash_substitutions.c)
 
     add_library(trifact_fault STATIC ${TRIFACT_CORE_SOURCES} tests/failing_allocator.c)
     trifact_configure_library(trifact_fault)
