@@ -58,7 +58,7 @@ function(trifact_enable_warnings target_name)
     endif()
 endfunction()
 
-set(TRIFACT_CORE_SOURCES src/core.c src/incidence.c src/relation.c src/trifact.c src/witness.c)
+set(TRIFACT_CORE_SOURCES src/core.c src/incidence.c src/keccak.c src/relation.c src/secure.c src/shake.c src/trifact.c src/witness.c)
 
 function(trifact_configure_library target_name)
     target_compile_features(${target_name} PUBLIC c_std_17)
@@ -107,6 +107,7 @@ if(BUILD_TESTING)
     trifact_add_test(trifact_incidence_tests trifact.incidence tests/test_incidence.c)
     trifact_add_test(trifact_witness_tests trifact.witness tests/test_witness.c)
     trifact_add_test(trifact_invariant_tests trifact.invariants tests/test_invariants.c)
+    trifact_add_test(trifact_shake_tests trifact.shake tests/test_shake.c)
 
     add_library(trifact_fault STATIC ${TRIFACT_CORE_SOURCES} tests/failing_allocator.c)
     trifact_configure_library(trifact_fault)

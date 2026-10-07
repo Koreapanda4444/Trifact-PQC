@@ -51,4 +51,4 @@ Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom 계약](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-구현 전에 이 문서에서 계약을 고정한다. 기능은 해당 코드와 검사까지 갖췄을 때만 완료로 판단한다.
+`trifact/shake.h`의 streaming API와 내장 backend를 구현했다. `trifact.shake`는 빈 입력 출력·rate 경계를 넘는 binary 입력·1바이트 streaming·잘못된 전이·인자 실패·NULL 안전 해제를 검사한다. Framed hash와 난수는 다음 작업이다.

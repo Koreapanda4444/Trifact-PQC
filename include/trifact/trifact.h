@@ -6,6 +6,7 @@
 #include "trifact/core.h"
 #include "trifact/incidence.h"
 #include "trifact/relation.h"
+#include "trifact/shake.h"
 #include "trifact/witness.h"
 
 #if CHAR_BIT != 8

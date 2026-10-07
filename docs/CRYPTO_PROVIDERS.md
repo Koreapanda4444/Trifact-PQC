@@ -51,4 +51,4 @@ Basic lifecycle tests accompany the provider implementation. Later numbered deli
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom contract](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-The contracts are fixed here before implementation; features are considered delivered only with their code and corresponding checks.
+The streaming API in `trifact/shake.h` and the built-in backend are implemented. `trifact.shake` checks empty output, binary input across rate boundaries, one-byte streaming, forbidden transitions, argument failures, and null-safe destruction. Framed hashes and randomness remain subsequent deliveries.

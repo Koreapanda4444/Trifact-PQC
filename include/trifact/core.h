@@ -30,7 +30,8 @@ typedef enum {
     TRIFACT_STATUS_WITNESS_LENGTH_MISMATCH,
     TRIFACT_STATUS_VERTEX_DEGREE_MISMATCH,
     TRIFACT_STATUS_LABEL_OUT_OF_RANGE,
-    TRIFACT_STATUS_INCIDENT_LABEL_COLLISION
+    TRIFACT_STATUS_INCIDENT_LABEL_COLLISION,
+    TRIFACT_STATUS_INVALID_STATE
 } trifact_status_t;
 
 trifact_status_t trifact_edge_init(trifact_edge_t *out_edge, trifact_vertex_t vertex_count,
