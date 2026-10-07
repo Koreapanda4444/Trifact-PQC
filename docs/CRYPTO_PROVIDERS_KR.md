@@ -32,6 +32,8 @@ Exact read는 모든 byte를 비공개 임시 저장소에 모은 뒤 완전히 
 
 Callback은 제한된 시간 안에 반환하고 제공된 용량을 지켜야 한다. Wrapper는 보고된 개수를 확인할 수 있지만 안전하지 않은 callback 자체를 안전하게 만들 수는 없다. Provider는 개별 소유하며 순차 사용한다. Callback context는 provider보다 오래 살아 있어야 한다. 별도 exact-read source 인터페이스를 통해 sampler가 entropy provider 또는 명시적으로 선택한 연구 stream을 소비한다.
 
+`trifact/rng.h`는 `trifact_entropy_provider_create`·`trifact_entropy_read_exact`·NULL 안전 해제를 제공한다. 생성자는 interruption limit을 받으며 0이면 interruption 즉시 provider가 실패한다. `trifact_entropy_source`는 provider 해제 전까지 사용할 수 있는 `{read, context}` adapter를 빌려 준다. NULL provider에는 빈 source를 반환한다. 사용자 `trifact_random_source_t` reader는 `OK`일 때 요청한 전체 span을 전달하고 오류 시 출력을 유지해야 한다. Sampler는 이 계약을 위반하는 callback을 복구할 수 없다. Entropy callback의 실패 status는 `RANDOMNESS_FAILURE`로 변환하며 `INTERRUPTED`와 함께 보고한 progress는 허용하지 않는다.
+
 ## 운영체제 adapter
 
 Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 256바이트를 처리한다. `EINTR`는 `INTERRUPTED`로 바꾸며 제한된 재시도와 짧은 read 조립은 공통 provider가 처리한다. 다른 실패는 provider를 닫는다. Windows는 `BCryptGenRandom(NULL, ..., BCRYPT_USE_SYSTEM_PREFERRED_RNG)`을 사용하고 시스템 `bcrypt` library를 연결한다. 두 adapter 모두 device file fallback을 추가하지 않는다. 지원하지 않는 platform은 `PLATFORM_UNAVAILABLE`를 반환한다.
@@ -53,4 +55,4 @@ Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom 계약](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-`trifact/shake.h`의 streaming API·내장 backend·`trifact/hash.h`의 framed hash API를 구현했다. `trifact.shake`는 빈 입력 출력·rate 경계를 넘는 binary 입력·1바이트 streaming·잘못된 전이·인자 실패·NULL 안전 해제를 검사한다. `trifact.shake-vectors`는 독립 참조 자료를 보관한다. `trifact.hash`는 literal framing·registry lookup·mode 제한·finalize된 stream 생성을 검사한다. 난수는 다음 작업이다.
+Streaming API·내장 backend·framed hash API·callback entropy provider를 구현했다. `trifact.shake`는 생명주기를 검사하며 `trifact.shake-vectors`는 독립 참조 자료를 보관한다. `trifact.hash`·`trifact.hash-substitutions`는 framing과 registry를 검사한다. `trifact.entropy`는 short read·interruption 예산·0과 초과 progress·임시 출력·영구 실패·NULL 안전 해제를 검사한다. OS adapter와 연구 sampling은 다음 작업이다.

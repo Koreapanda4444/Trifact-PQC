@@ -7,6 +7,7 @@
 #include "trifact/hash.h"
 #include "trifact/incidence.h"
 #include "trifact/relation.h"
+#include "trifact/rng.h"
 #include "trifact/shake.h"
 #include "trifact/witness.h"
 

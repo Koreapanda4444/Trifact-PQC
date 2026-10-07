@@ -32,6 +32,8 @@ Exact reads stage all bytes privately and publish them only after complete succe
 
 Callbacks must return in bounded time and respect the provided capacity. The wrapper can validate reported counts but cannot make an unsafe callback safe. Providers are individually owned and used serially; callback contexts must outlive them. A separate exact-read source interface lets samplers consume either an entropy provider or an explicitly selected research stream.
 
+`trifact/rng.h` exposes `trifact_entropy_provider_create`, `trifact_entropy_read_exact`, and null-safe destruction. The constructor accepts the interruption limit; zero means an interruption immediately closes the provider. `trifact_entropy_source` returns a borrowed `{read, context}` adapter usable until provider destruction. Passing a null provider returns an empty source. A custom `trifact_random_source_t` reader must deliver the entire requested span on `OK` and preserve output on error; a sampler cannot repair a callback that violates this contract. An entropy callback's failure status is mapped to `RANDOMNESS_FAILURE`, and reported progress is never accepted together with `INTERRUPTED`.
+
 ## Operating-system adapters
 
 Linux uses blocking `getrandom(..., 0)`, limits each callback request to 256 bytes, translates `EINTR` to `INTERRUPTED`, and delegates bounded retry and short-read assembly to the common provider. All other failures close the provider. Windows uses `BCryptGenRandom(NULL, ..., BCRYPT_USE_SYSTEM_PREFERRED_RNG)` and links the system `bcrypt` library. Neither adapter adds a device-file fallback. An unsupported platform reports `PLATFORM_UNAVAILABLE`.
@@ -53,4 +55,4 @@ Basic lifecycle tests accompany the provider implementation. Later numbered deli
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom contract](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-The streaming API in `trifact/shake.h`, the built-in backend, and the framed hash API in `trifact/hash.h` are implemented. `trifact.shake` checks empty output, binary input across rate boundaries, one-byte streaming, forbidden transitions, argument failures, and null-safe destruction. `trifact.shake-vectors` retains the independent reference corpus. `trifact.hash` checks literal framing, registry lookup, mode restrictions, and finalized stream creation. Randomness remains a subsequent delivery.
+The streaming API, built-in backend, framed hash API, and callback entropy provider are implemented. `trifact.shake` checks the lifecycle and `trifact.shake-vectors` retains the independent reference corpus. `trifact.hash` and `trifact.hash-substitutions` check framing and the registry. `trifact.entropy` checks short reads, interruption budgets, zero and excessive progress, staged output, permanent failure, and null-safe destruction. Operating-system adapters and research sampling remain subsequent deliveries.
