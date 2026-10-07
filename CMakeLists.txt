@@ -58,7 +58,7 @@ function(trifact_enable_warnings target_name)
     endif()
 endfunction()
 
-set(TRIFACT_CORE_SOURCES src/core.c src/entropy.c src/entropy_system.c src/hash.c src/incidence.c src/keccak.c src/relation.c src/secure.c src/shake.c src/trifact.c src/witness.c)
+set(TRIFACT_CORE_SOURCES src/core.c src/entropy.c src/entropy_system.c src/hash.c src/incidence.c src/keccak.c src/relation.c src/research.c src/sampling.c src/secure.c src/shake.c src/trifact.c src/witness.c)
 
 function(trifact_configure_library target_name)
     target_compile_features(${target_name} PUBLIC c_std_17)
@@ -116,6 +116,8 @@ if(BUILD_TESTING)
     trifact_add_test(trifact_hash_substitution_tests trifact.hash-substitutions tests/test_hash_substitutions.c)
     trifact_add_test(trifact_entropy_tests trifact.entropy tests/test_entropy.c)
     trifact_add_test(trifact_entropy_system_tests trifact.entropy-system tests/test_entropy_system.c)
+    trifact_add_test(trifact_research_tests trifact.research tests/test_research.c)
+    trifact_add_test(trifact_sampling_tests trifact.sampling tests/test_sampling.c)
 
     add_library(trifact_fault STATIC ${TRIFACT_CORE_SOURCES} tests/failing_allocator.c)
     trifact_configure_library(trifact_fault)

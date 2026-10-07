@@ -48,6 +48,8 @@ Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 
 
 순열은 동일한 uniform 규칙과 명시적 draw별 예산으로 `[0,n)`에 descending Fisher-Yates를 적용한다. 임시 배열에서 처리하고 완전히 성공했을 때만 출력하며 실패 시 임시 저장소를 비운다. Source rewind나 부분 순열은 노출하지 않는다. 빈 순열을 허용한다. 출력 정점은 U32이며 모든 할당 곱셈을 검사한다.
 
+`trifact/research.h`는 소유 연구 stream과 빌린 exact-read source adapter를 제공한다. `toy`·`small`·`medium`만 허용하며 전체 parameter descriptor는 이후 registry 작업에서 제공한다. 생성 시 seed를 동기적으로 absorb하므로 호출자 seed 저장소는 호출 후 유지할 필요가 없다. `trifact_uniform_u32`는 `2^32`를 정확히 표현하도록 U64 bound를 받아 U32 나머지를 반환한다. `trifact_random_permutation`은 U32 정점 수를 받는다. 두 함수 모두 유효한 exact-read source와 양수 `max_draws`가 필요하다. 빈 순열의 출력은 NULL을 허용하고 원소 1개 순열은 난수 byte를 소비하지 않는다. Sampling 오류는 출력을 유지하지만 source를 진행시킬 수 있다. 예산 소진은 정상 source를 실패 상태로 만들지 않는다. 기본 source나 숨겨진 재시도 예산을 선택하지 않는다.
+
 ## 검증과 출처
 
 기본 생명주기 test는 provider 구현과 함께 추가한다. 이후 번호별 작업에서 공식 SHAKE256 known answer, 독립 framing vector, substitution, scripted entropy 중단·실패, sampling 경계, platform 간 연구 재현을 추가한다. 공개 test seed와 vector는 실제 비밀 자료가 아니다. 검사 통과가 TRIFACT의 안전성을 입증하지는 않는다.
@@ -57,4 +59,4 @@ Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom 계약](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-Streaming API·내장 backend·framed hash API·callback entropy provider를 구현했다. `trifact.shake`는 생명주기를 검사하며 `trifact.shake-vectors`는 독립 참조 자료를 보관한다. `trifact.hash`·`trifact.hash-substitutions`는 framing과 registry를 검사한다. `trifact.entropy`는 short read·interruption 예산·0과 초과 progress·임시 출력·영구 실패·NULL 안전 해제를 검사한다. OS adapter를 구현했고 `trifact.entropy-system`은 선택한 platform을 검사한다. 연구 sampling은 다음 작업이다.
+Streaming API·내장 backend·framed hash API·callback entropy provider를 구현했다. `trifact.shake`는 생명주기를 검사하며 `trifact.shake-vectors`는 독립 참조 자료를 보관한다. `trifact.hash`·`trifact.hash-substitutions`는 framing과 registry를 검사한다. `trifact.entropy`는 short read·interruption 예산·0과 초과 progress·임시 출력·영구 실패·NULL 안전 해제를 검사한다. OS adapter를 구현했고 `trifact.entropy-system`은 선택한 platform을 검사한다. 연구 stream과 균등 sampling을 구현했다. `trifact.research`·`trifact.sampling`은 재현과 기본 sampling 동작을 검사한다.

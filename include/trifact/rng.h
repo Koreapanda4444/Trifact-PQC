@@ -25,4 +25,10 @@ trifact_status_t trifact_entropy_provider_create_system(trifact_entropy_provider
 trifact_random_source_t trifact_entropy_source(trifact_entropy_provider_t *provider);
 void trifact_entropy_provider_destroy(trifact_entropy_provider_t *provider);
 
+trifact_status_t trifact_uniform_u32(const trifact_random_source_t *source, uint64_t bound,
+                                     uint32_t max_draws, uint32_t *out_value);
+trifact_status_t trifact_random_permutation(const trifact_random_source_t *source,
+                                            trifact_vertex_t vertex_count, uint32_t max_draws,
+                                            trifact_vertex_t *output);
+
 #endif
