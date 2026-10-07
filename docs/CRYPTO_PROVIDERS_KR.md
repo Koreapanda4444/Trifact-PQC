@@ -22,6 +22,8 @@ Context는 독립적으로 소유하고 전역 가변 상태를 사용하지 않
 
 Field는 해당 codec 또는 protocol 계층이 제공한 canonical byte다. Primitive wrapper는 포인터·U32 개수와 길이·framing 전체 산술을 확인한다. 이후 key·proof codec을 구현하거나 임의 field list가 올바른 protocol object라고 판정하지 않는다. Hash32 출력은 정확히 32바이트다. 고정 XOF 길이는 `UINT32_MAX` 이하이며 stream read에는 요청 길이를 덧붙이지 않는다. 상위 계층은 primitive를 호출하기 전에 승인된 resource limit을 적용한다.
 
+공개 `trifact/hash.h` registry는 `trifact_domain_t`를 사용한다. `trifact_domain_name`은 정확한 이름을 빌려 주며 `trifact_domain_from_name`은 정확히 등록된 이름만 허용한다. Lookup 실패 시 출력 enum을 유지한다. `trifact_hash_field_t`는 호출 중 각 byte span을 빌린다. `trifact_hash32`·`trifact_xof`·`trifact_xof_stream_create`는 각각 registry mode를 검사한다. 생성한 stream은 이미 finalize된 상태이며 SHAKE256 API로 소유·해제한다. Primitive는 빈 field 목록과 빈 field를 허용하되 서로 다른 encoding을 사용한다. 연결된 전체 메시지를 할당하지 않고 검사한 framing을 streaming한다.
+
 ## Entropy callback
 
 소유 provider는 callback과 호출자가 소유한 context를 참조한다. Callback은 쓰기 가능한 임시 저장소·남은 용량·받은 개수 slot을 입력받는다. `OK`는 `1 <= received <= requested`여야 하며 짧은 정상 read는 누적한다. `INTERRUPTED`는 받은 byte 0개여야 하고 exact-read 호출에 대해 호출자가 지정한 중단 재시도 예산 안에서만 반복한다. 그 외 status·진행 없음·과도한 개수는 provider를 영구 실패 상태로 만든다.
@@ -51,4 +53,4 @@ Linux는 blocking `getrandom(..., 0)`을 사용하고 callback 요청당 최대 
 - [Linux getrandom manual](https://man7.org/linux/man-pages/man2/getrandom.2.html)
 - [Microsoft BCryptGenRandom 계약](https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/nf-bcrypt-bcryptgenrandom)
 
-`trifact/shake.h`의 streaming API와 내장 backend를 구현했다. `trifact.shake`는 빈 입력 출력·rate 경계를 넘는 binary 입력·1바이트 streaming·잘못된 전이·인자 실패·NULL 안전 해제를 검사한다. Framed hash와 난수는 다음 작업이다.
+`trifact/shake.h`의 streaming API·내장 backend·`trifact/hash.h`의 framed hash API를 구현했다. `trifact.shake`는 빈 입력 출력·rate 경계를 넘는 binary 입력·1바이트 streaming·잘못된 전이·인자 실패·NULL 안전 해제를 검사한다. `trifact.shake-vectors`는 독립 참조 자료를 보관한다. `trifact.hash`는 literal framing·registry lookup·mode 제한·finalize된 stream 생성을 검사한다. 난수는 다음 작업이다.
